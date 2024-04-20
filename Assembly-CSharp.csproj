@@ -63,6 +63,7 @@
     <Compile Include="Assets/Scripts/SprikeTrapScript.cs" />
     <Compile Include="Assets/Scripts/CheckpointScript.cs" />
     <Compile Include="Assets/Scripts/PickupEffectScript.cs" />
+    <Compile Include="Assets/Scripts/EnemyAIScript.cs" />
     <Compile Include="Assets/Scripts/CharacterMoveScript.cs" />
     <Compile Include="Assets/Scripts/GameManager.cs" />
     <Compile Include="Assets/Scripts/GameUIScript.cs" />
