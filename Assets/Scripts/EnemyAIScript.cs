@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class EnemyAIScript : MonoBehaviour
 {
@@ -31,44 +32,82 @@ public class EnemyAIScript : MonoBehaviour
 
     public bool aggro; //if the enemy is in an aggro state
     private Rigidbody2D _myRb;
+    
+    public Transform[] patrolPoints;
+    public Transform destinationPoint;
+    public Animator anim;
+    public Transform player;
+    public GameManager gameManager;
+
+    float timer;
 
     // Start is called before the first frame update
     void Start()
     {
-        enemyAIState = State.Idle;
-        _myRb = GetComponent<Rigidbody2D>(); // look for a component called Rigidbody2D and assign it to myRb
+        enemyAIState = State.Patrol;
+        _myRb = GetComponent<Rigidbody2D>();
+        destinationPoint = patrolPoints[Random.Range(0, patrolPoints.Length)];
+        player = GameObject.FindWithTag("Player").transform;
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
     }
 
-    // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        _myRb.velocity = new Vector2(speed, _myRb.velocity.y);
-
+        timer += Time.deltaTime;
 
         switch (enemyAIState)
         {
             case State.Idle:
-                speed = 0;
-                //do nothing
+                anim.SetInteger("state", 0);
                 break;
             case State.Patrol:
-                speed = moveSpeed;
-                //move the enemy
+                anim.SetInteger("state", 1);
+                MoveTowardsDestination(destinationPoint.position.x, moveSpeed);
+                if (Mathf.Abs(transform.position.x - destinationPoint.position.x) < 0.5f)
+                {
+                    destinationPoint = patrolPoints[Random.Range(0, patrolPoints.Length)];
+                }
+
                 break;
             case State.DetectPlayer:
-                speed = 0;
-                //when player is detected, start a timer to chase the player
                 break;
             case State.Chasing:
-                //chases the player
-                speed = chaseSpeed;
+                anim.SetInteger("state", 3);
+                MoveTowardsDestination(player.position.x, chaseSpeed);
+
+                //Debug.Log(Vector2.Distance(transform.position, player.position));
+                if (Vector2.Distance(transform.position, player.position) < 1.5f)
+                {
+                    // Check if enough time has passed since the last attack
+                    if (timer >= 2)
+                    {
+                        // Attack the player
+                        gameManager.TakeDamage(1);
+                        // Reset the timer
+                        timer = 0f;
+                    }
+                }
                 break;
             case State.AggroIdle:
-                //stays in aggro mode for a set time before going back to idle
-                speed = 0;
                 break;
         }
     }
+
+    void MoveTowardsDestination(float destinationX, float speed)
+    {
+        // Calculate the direction towards the destination only along the x-axis
+        float directionX = Mathf.Sign(destinationX - transform.position.x);
+
+        // Move only along the x-axis
+        _myRb.velocity = new Vector2(directionX * speed, _myRb.velocity.y);
+
+        // Flip the enemy sprite based on movement direction
+        if (directionX < 0)
+            transform.localScale = new Vector3(1, 1, 1);
+        else if (directionX > 0)
+            transform.localScale = new Vector3(-1, 1, 1);
+    }
+
 
     private void OnTriggerEnter2D(Collider2D other)
     {
@@ -101,7 +140,7 @@ public class EnemyAIScript : MonoBehaviour
         if (playerDetected == false)
         {
             aggro = false;
-            enemyAIState = State.Idle;
+            enemyAIState = State.Patrol;
         }
     }
 
@@ -124,17 +163,18 @@ public class EnemyAIScript : MonoBehaviour
         if (playerDetected == false & aggro == false)
         {
             aggro = false;
-            enemyAIState = State.Idle;
+            enemyAIState = State.Patrol;
         }
         if (playerDetected == false & aggro == true)
         {
-            enemyAIState = State.AggroIdle;
+            enemyAIState = State.Patrol;
+            destinationPoint = patrolPoints[Random.Range(0, patrolPoints.Length)];
         }
         yield return new WaitForSeconds(aggroTime * 2);
         if (playerDetected == false)
         {
             aggro = false;
-            enemyAIState = State.Idle;
+            enemyAIState = State.Patrol;
         }
 
     }

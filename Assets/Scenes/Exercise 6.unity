@@ -873,6 +873,7 @@ MonoBehaviour:
   aggroTimer: 5.06
   patrolSpeed: 2.48
   aggroSpeed: 2.93
+  exclamationMark: {fileID: 919132149155446097, guid: 706ae39b246474fc9b5598bc0dbe24f6, type: 3}
 --- !u!195 &622039133
 NavMeshAgent:
   m_ObjectHideFlags: 0

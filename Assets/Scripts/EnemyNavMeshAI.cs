@@ -19,6 +19,7 @@ public class EnemyNavMeshAI : MonoBehaviour
     public float patrolSpeed;
 
     public float aggroSpeed;
+    public GameObject exclamationMark;
 
 
     // Start is called before the first frame update
@@ -29,6 +30,7 @@ public class EnemyNavMeshAI : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         aggro = false;
         destinationReached = true;
+        exclamationMark.SetActive(false);
     }
 
     // Update is called once per frame
@@ -66,6 +68,7 @@ public class EnemyNavMeshAI : MonoBehaviour
         {
             aggro = true;
             agent.speed = aggroSpeed;
+            exclamationMark.SetActive(true);
         }
     }
 
@@ -83,6 +86,7 @@ public class EnemyNavMeshAI : MonoBehaviour
     IEnumerator AggroTimer()
     {
         yield return new WaitForSeconds(aggroTimer);
+        exclamationMark.SetActive(false);
         aggro = false;
         destinationReached = true;
     }

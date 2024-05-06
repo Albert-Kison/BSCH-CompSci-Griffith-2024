@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -36,6 +37,11 @@ public class GameManager : MonoBehaviour
     public void TakeDamage(float damage)
     {
         playerHealth -= damage;
+        if (playerHealth == 0)
+        {
+            playerHealth = maxPlayerHealth;
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);            
+        }
     }
 
     public void UpdateSpawnPoint(Transform newSpawnPoint)
